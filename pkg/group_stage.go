@@ -71,11 +71,8 @@ func (gs *GroupStage) GetTeamPlacements() []*TeamPlacement {
 	}
 
 	sort.Slice(teamPlacement, func(i, j int) bool {
-		if teamPlacement[i].Points != teamPlacement[j].Points {
-			return teamPlacement[i].Points < teamPlacement[j].Points
-		}
-
-		return teamPlacement[i].Wins < teamPlacement[j].Wins &&
+		return teamPlacement[i].Points > teamPlacement[j].Points &&
+			teamPlacement[i].Wins > teamPlacement[j].Wins &&
 			teamPlacement[i].Loses < teamPlacement[j].Loses
 	})
 
