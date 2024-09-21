@@ -1,0 +1,32 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "roll",
+    srcs = ["roll_dice.go"],
+    importpath = "github.com/bazelbuild/rules_go/examples/basic-gazelle/pkg/roll",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "roll_test",
+    srcs = ["roll_dice_test.go"],
+    embed = [":roll"],
+)
+
+go_library(
+    name = "pkg",
+    srcs = [
+        "event_scheduler.go",
+        "group_stage.go",
+        "team.go",
+        "tiebreaker.go",
+    ],
+    importpath = "github.com/bazelbuild/rules_go/examples/basic-gazelle/pkg",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "pkg_test",
+    srcs = ["group_stage_test.go"],
+    embed = [":pkg"],
+)
