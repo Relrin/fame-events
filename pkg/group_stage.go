@@ -15,7 +15,7 @@ type GroupStage struct {
 // HasFinishedAllMatches checks that N matches were finished before
 // making a decision what teams must be advanced further.
 func (gs *GroupStage) HasFinishedAllMatches() bool {
-	return gs.TotalMatches < gs.FinishedMatches
+	return gs.TotalMatches != 0 && gs.TotalMatches == gs.FinishedMatches
 }
 
 // HandleGroupStageMatchResult updates team result based on the given result

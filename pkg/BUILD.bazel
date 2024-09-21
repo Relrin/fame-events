@@ -17,6 +17,6 @@ go_library(
 
 go_test(
     name = "pkg_test",
-    srcs = ["tiebreaker_test.go"],
+    srcs = ["group_stage_test.go"],
     embed = [":pkg"],
 )
