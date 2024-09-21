@@ -1,23 +1,83 @@
 package pkg
 
+import (
+	"sort"
+)
+
 type GroupStage struct {
-	Name      string
-	Teams     []*Team
-	Standings map[string]*Standing
+	Name            string
+	Teams           []*Team
+	TeamStats       []*TeamStats
+	TotalMatches    uint32
+	FinishedMatches uint32
 }
 
-type Standing struct {
-	// Generic stats
-	PlayerMatches uint32
-	Wins          uint32
-	Loses         uint32
-	Points        uint32
+// HasFinishedAllMatches checks that N matches were finished before
+// making a decision what teams must be advanced further.
+func (gs *GroupStage) HasFinishedAllMatches() bool {
+	return gs.TotalMatches < gs.FinishedMatches
+}
 
-	// Team specific stats
-	Kills          uint32
-	Deaths         uint32
-	Assists        uint32
-	CombatScore    uint32
-	ObjectiveScore uint32
-	SupportScore   uint32
+// HandleGroupStageMatchResult updates team result based on the given result
+func (gs *GroupStage) HandleGroupStageMatchResult(result GroupStageMatchResult) {
+	for teamIndex, teamStats := range result.WonTeams {
+		gs.TeamStats[teamIndex].TotalMatches += 1
+		gs.TeamStats[teamIndex].WonMatches += 1
+
+		gs.updateTeamStats(teamIndex, teamStats)
+	}
+
+	for teamIndex, teamStats := range result.LostTeams {
+		gs.TeamStats[teamIndex].TotalMatches += 1
+		gs.TeamStats[teamIndex].LostMatches += 1
+
+		gs.updateTeamStats(teamIndex, teamStats)
+	}
+
+	for teamIndex, points := range result.PointsPerTeam {
+		gs.TeamStats[teamIndex].Points += points
+	}
+
+	gs.FinishedMatches += 1
+}
+
+func (gs *GroupStage) updateTeamStats(teamIndex uint32, stats *TeamStats) {
+	if stats == nil {
+		return
+	}
+
+	gs.TeamStats[teamIndex].Kills += stats.Kills
+	gs.TeamStats[teamIndex].Deaths += stats.Deaths
+	gs.TeamStats[teamIndex].Assists += stats.Assists
+	gs.TeamStats[teamIndex].CombatScore += stats.CombatScore
+	gs.TeamStats[teamIndex].ObjectiveScore += stats.ObjectiveScore
+	gs.TeamStats[teamIndex].SupportScore += stats.SupportScore
+}
+
+// GetTeamPlacements returns current positions of teams within the
+// group based on the earned points & win-loses
+func (gs *GroupStage) GetTeamPlacements() []*TeamPlacement {
+	teamPlacement := make([]*TeamPlacement, 0)
+	for index, team := range gs.Teams {
+		teamStats := gs.TeamStats[index]
+
+		teamPlacement = append(teamPlacement, &TeamPlacement{
+			Name:    team.Name,
+			Matches: teamStats.TotalMatches,
+			Wins:    teamStats.WonMatches,
+			Loses:   teamStats.LostMatches,
+			Points:  teamStats.Points,
+		})
+	}
+
+	sort.Slice(teamPlacement, func(i, j int) bool {
+		if teamPlacement[i].Points != teamPlacement[j].Points {
+			return teamPlacement[i].Points < teamPlacement[j].Points
+		}
+
+		return teamPlacement[i].Wins < teamPlacement[j].Wins &&
+			teamPlacement[i].Loses < teamPlacement[j].Loses
+	})
+
+	return teamPlacement
 }
