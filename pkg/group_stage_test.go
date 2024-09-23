@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"slices"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGroupStage_HasFinishedAllMatches(t *testing.T) {
@@ -43,6 +45,229 @@ func TestGroupStage_HasFinishedAllMatches(t *testing.T) {
 
 			if result != expected {
 				t.Fatalf("returned %v; expected %v", result, expected)
+			}
+		})
+	}
+}
+
+func TestGroupStage_HandleGroupStageMatchResult(t *testing.T) {
+	tests := map[string]struct {
+		groupStage      *GroupStage
+		matchResult     *GroupStageMatchResult
+		groupStageAfter *GroupStage
+	}{
+		"updates all stats correctly after match completion": {
+			groupStage: &GroupStage{
+				TeamStats: []*TeamStats{
+					{},
+					{},
+				},
+			},
+			matchResult: &GroupStageMatchResult{
+				PointsPerTeam: map[uint32]uint32{
+					0: 3,
+					1: 1,
+				},
+				WonTeams: map[uint32]*TeamStats{
+					0: {
+						Kills:          6,
+						Deaths:         5,
+						Assists:        4,
+						CombatScore:    3,
+						ObjectiveScore: 2,
+						SupportScore:   1,
+					},
+				},
+				LostTeams: map[uint32]*TeamStats{
+					1: {
+						Kills:          1,
+						Deaths:         2,
+						Assists:        3,
+						CombatScore:    4,
+						ObjectiveScore: 5,
+						SupportScore:   6,
+					},
+				},
+			},
+			groupStageAfter: &GroupStage{
+				FinishedMatches: 1,
+				TeamStats: []*TeamStats{
+					{
+						TotalMatches:   1,
+						WonMatches:     1,
+						LostMatches:    0,
+						Points:         3,
+						Kills:          6,
+						Deaths:         5,
+						Assists:        4,
+						CombatScore:    3,
+						ObjectiveScore: 2,
+						SupportScore:   1,
+					},
+					{
+						TotalMatches:   1,
+						WonMatches:     0,
+						LostMatches:    1,
+						Points:         1,
+						Kills:          1,
+						Deaths:         2,
+						Assists:        3,
+						CombatScore:    4,
+						ObjectiveScore: 5,
+						SupportScore:   6,
+					},
+				},
+			},
+		},
+		"updates only winners stats and points": {
+			groupStage: &GroupStage{
+				TeamStats: []*TeamStats{
+					{},
+					{},
+				},
+			},
+			matchResult: &GroupStageMatchResult{
+				PointsPerTeam: map[uint32]uint32{
+					0: 3,
+				},
+				WonTeams: map[uint32]*TeamStats{
+					0: {
+						Kills:          6,
+						Deaths:         5,
+						Assists:        4,
+						CombatScore:    3,
+						ObjectiveScore: 2,
+						SupportScore:   1,
+					},
+				},
+				LostTeams: map[uint32]*TeamStats{},
+			},
+			groupStageAfter: &GroupStage{
+				FinishedMatches: 1,
+				TeamStats: []*TeamStats{
+					{
+						TotalMatches:   1,
+						WonMatches:     1,
+						LostMatches:    0,
+						Points:         3,
+						Kills:          6,
+						Deaths:         5,
+						Assists:        4,
+						CombatScore:    3,
+						ObjectiveScore: 2,
+						SupportScore:   1,
+					},
+					{},
+				},
+			},
+		},
+		"updates only lost team stats and points": {
+			groupStage: &GroupStage{
+				TeamStats: []*TeamStats{
+					{},
+					{},
+				},
+			},
+			matchResult: &GroupStageMatchResult{
+				PointsPerTeam: map[uint32]uint32{
+					1: 1,
+				},
+				WonTeams: map[uint32]*TeamStats{},
+				LostTeams: map[uint32]*TeamStats{
+					1: {
+						Kills:          1,
+						Deaths:         2,
+						Assists:        3,
+						CombatScore:    4,
+						ObjectiveScore: 5,
+						SupportScore:   6,
+					},
+				},
+			},
+			groupStageAfter: &GroupStage{
+				FinishedMatches: 1,
+				TeamStats: []*TeamStats{
+					{},
+					{
+						TotalMatches:   1,
+						WonMatches:     0,
+						LostMatches:    1,
+						Points:         1,
+						Kills:          1,
+						Deaths:         2,
+						Assists:        3,
+						CombatScore:    4,
+						ObjectiveScore: 5,
+						SupportScore:   6,
+					},
+				},
+			},
+		},
+		"updates points per team and finished matches": {
+			groupStage: &GroupStage{
+				TeamStats: []*TeamStats{
+					{},
+					{},
+				},
+			},
+			matchResult: &GroupStageMatchResult{
+				PointsPerTeam: map[uint32]uint32{
+					0: 3,
+					1: 1,
+				},
+				WonTeams:  map[uint32]*TeamStats{},
+				LostTeams: map[uint32]*TeamStats{},
+			},
+			groupStageAfter: &GroupStage{
+				FinishedMatches: 1,
+				TeamStats: []*TeamStats{
+					{
+						TotalMatches: 0,
+						WonMatches:   0,
+						LostMatches:  0,
+						Points:       3,
+					},
+					{
+						TotalMatches: 0,
+						WonMatches:   0,
+						LostMatches:  0,
+						Points:       1,
+					},
+				},
+			},
+		},
+		"updates only finished matches": {
+			groupStage: &GroupStage{
+				TeamStats: []*TeamStats{
+					{},
+					{},
+				},
+			},
+			matchResult: &GroupStageMatchResult{
+				PointsPerTeam: map[uint32]uint32{},
+				WonTeams:      map[uint32]*TeamStats{},
+				LostTeams:     map[uint32]*TeamStats{},
+			},
+			groupStageAfter: &GroupStage{
+				FinishedMatches: 1,
+				TeamStats: []*TeamStats{
+					{},
+					{},
+				},
+			},
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, test.groupStage.FinishedMatches, uint32(0), "Should be 0 matches before the update")
+
+			test.groupStage.HandleGroupStageMatchResult(test.matchResult)
+
+			assert.Equal(t, test.groupStage.FinishedMatches, test.groupStageAfter.FinishedMatches, "Invalid FinishedMatches counter after handling match update")
+			if !reflect.DeepEqual(test.groupStage.TeamStats, test.groupStageAfter.TeamStats) {
+				t.Fatalf("returned %v; expected %v", test.groupStage, test.groupStageAfter)
 			}
 		})
 	}

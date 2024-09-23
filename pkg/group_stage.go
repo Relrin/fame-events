@@ -19,8 +19,12 @@ func (gs *GroupStage) HasFinishedAllMatches() bool {
 }
 
 // HandleGroupStageMatchResult updates team result based on the given result
-func (gs *GroupStage) HandleGroupStageMatchResult(result GroupStageMatchResult) {
+func (gs *GroupStage) HandleGroupStageMatchResult(result *GroupStageMatchResult) {
 	for teamIndex, teamStats := range result.WonTeams {
+		if int(teamIndex) > len(gs.TeamStats) {
+			continue
+		}
+
 		gs.TeamStats[teamIndex].TotalMatches += 1
 		gs.TeamStats[teamIndex].WonMatches += 1
 
@@ -28,13 +32,23 @@ func (gs *GroupStage) HandleGroupStageMatchResult(result GroupStageMatchResult) 
 	}
 
 	for teamIndex, teamStats := range result.LostTeams {
+		if int(teamIndex) > len(gs.TeamStats) {
+			continue
+		}
+
 		gs.TeamStats[teamIndex].TotalMatches += 1
 		gs.TeamStats[teamIndex].LostMatches += 1
 
 		gs.updateTeamStats(teamIndex, teamStats)
 	}
 
+	// Can convenient to do it like this, so it would be possible to
+	// apply technical defeats and assign points separately
 	for teamIndex, points := range result.PointsPerTeam {
+		if int(teamIndex) > len(gs.TeamStats) {
+			continue
+		}
+
 		gs.TeamStats[teamIndex].Points += points
 	}
 

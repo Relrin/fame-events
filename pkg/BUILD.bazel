@@ -19,4 +19,5 @@ go_test(
     name = "pkg_test",
     srcs = ["group_stage_test.go"],
     embed = [":pkg"],
+    deps = ["@com_github_stretchr_testify//assert"],
 )
