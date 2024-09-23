@@ -7,3 +7,8 @@ type TeamPlacement struct {
 	Loses   uint32
 	Points  uint32
 }
+
+type AggregatedTeamData struct {
+	TeamIndex uint32
+	TeamStats *TeamStats
+}

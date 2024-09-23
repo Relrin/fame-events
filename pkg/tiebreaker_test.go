@@ -28,3 +28,27 @@ func TestTeamStatsTiebreakResolver_IsDeciderMatchRequired(t *testing.T) {
 		})
 	}
 }
+
+func TestTeamStatsTiebreakResolver_DetermineRanking(t *testing.T) {
+	tests := map[string]struct {
+		instance   *TeamStatsTiebreakResolver
+		groupStage *GroupStage
+		expected   []uint32{}
+	}{
+		"decides by win and loss rounds": {
+			instance:   &TeamStatsTiebreakResolver{},
+			groupStage: &GroupStage{},
+			expected:   []uint32{},
+		},
+		// decides by win/loss & combat/support/objective scores
+		// decides by win/loss, combat/support/objective scores and KDA between teams
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			result := test.instance.IsDeciderMatchRequired(test.groupStage)
+		})
+	}
+}
