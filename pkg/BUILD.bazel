@@ -6,6 +6,8 @@ go_library(
         "event_scheduler.go",
         "group_stage.go",
         "match_result.go",
+        "play_off_optimizer.go",
+        "ranking.go",
         "team.go",
         "team_placement.go",
         "team_stats.go",
