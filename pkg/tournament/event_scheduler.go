@@ -1,4 +1,4 @@
-package pkg
+package tournament
 
 type EventScheduler struct {
 	Name        string

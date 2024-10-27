@@ -1,4 +1,4 @@
-package pkg
+package tournament
 
 type Team struct {
 	Name       string        // Displayed name in the event

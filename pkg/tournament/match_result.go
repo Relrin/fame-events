@@ -1,4 +1,4 @@
-package pkg
+package tournament
 
 type GroupStageMatchResult struct {
 	PointsPerTeam map[uint32]uint32

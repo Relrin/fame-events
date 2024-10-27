@@ -1,4 +1,4 @@
-package pkg
+package tournament
 
 type TeamPlacement struct {
 	Name    string

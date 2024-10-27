@@ -1,4 +1,4 @@
-package pkg
+package tournament
 
 type TeamStats struct {
 	// Group stage stats

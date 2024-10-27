@@ -1,4 +1,4 @@
-package pkg
+package tournament
 
 import (
 	"github.com/stretchr/testify/assert"

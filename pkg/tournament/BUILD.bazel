@@ -1,7 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
-    name = "pkg",
+    name = "tournament",
     srcs = [
         "event_scheduler.go",
         "group_stage.go",
@@ -13,16 +13,16 @@ go_library(
         "team_stats.go",
         "tiebreaker.go",
     ],
-    importpath = "github.com/bazelbuild/rules_go/examples/basic-gazelle/pkg",
+    importpath = "github.com/relrin/fame-events/pkg/tournament",
     visibility = ["//visibility:public"],
 )
 
 go_test(
-    name = "pkg_test",
+    name = "tournament_test",
     srcs = [
         "group_stage_test.go",
         "tiebreaker_test.go",
     ],
-    embed = [":pkg"],
+    embed = [":tournament"],
     deps = ["@com_github_stretchr_testify//assert"],
 )
