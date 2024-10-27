@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package event;
+
+service Event {
+  rpc ScheduleEvent(ScheduleEventRequest) returns (ScheduleEventResponse) {}
+}
+
+message ScheduleEventRequest {
+  string manifest_id = 1;
+  string scenario_id = 2;
+  repeated Team teams = 3;
+}
+
+message ScheduleEventResponse {
+  string event_id = 1;
+}
+
+message Team {
+  string name = 1;
+  uint32 brand_index = 2;
+  repeated PlayerInfo players = 3;
+}
+
+message PlayerInfo {
+  string player_id = 1;
+}
