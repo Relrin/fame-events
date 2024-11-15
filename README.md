@@ -7,7 +7,7 @@ bazelisk run //:gazelle-update-repos && bazelisk run //:gazelle
 
 Test all packages:
 ```
-bazelisk run //pkg/tournament:tournament_test
+bazelisk run //pkg/event:event_test
 ```
 
 Dapr deploy:

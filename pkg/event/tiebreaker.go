@@ -1,4 +1,4 @@
-package tournament
+package event
 
 type TiebreakResolver interface {
 	IsDeciderMatchRequired(gs *GroupStage) bool
