@@ -2,11 +2,11 @@ package tournament
 
 import "sort"
 
-type PlayOffOptimizer interface {
-	PrepareTeams(config PlayOffOptimizerConfig, teams []*Team, groupStageStats []*TeamStats) []*PlayOffMatch
+type PlayOffTeamOptimizer interface {
+	PrepareTeams(config PlayOffTeamOptimizerConfig, teams []*Team, groupStageStats []*TeamStats) []*PlayOffMatch
 }
 
-type PlayOffOptimizerConfig struct {
+type PlayOffTeamOptimizerConfig struct {
 	TotalMatches  int
 	TeamsPerMatch int
 }
@@ -20,7 +20,7 @@ type PlayOffMatch struct {
 type NoopPlayOffOptimizer struct{}
 
 // PrepareTeams returns teams as-is with no changes to their ranking
-func (n *NoopPlayOffOptimizer) PrepareTeams(config PlayOffOptimizerConfig, teams []*Team, groupStageStats []*TeamStats) []*PlayOffMatch {
+func (n *NoopPlayOffOptimizer) PrepareTeams(config PlayOffTeamOptimizerConfig, teams []*Team, groupStageStats []*TeamStats) []*PlayOffMatch {
 	matches := make([]*PlayOffMatch, 0)
 
 	if config.TotalMatches == 0 || config.TeamsPerMatch == 0 {
@@ -52,7 +52,7 @@ func (n *NoopPlayOffOptimizer) PrepareTeams(config PlayOffOptimizerConfig, teams
 type SerpentinePlayOffOptimizer struct{}
 
 // PrepareTeams organizes teams for the play off based on the serpentine system (i.e. snake seeding)
-func (s *SerpentinePlayOffOptimizer) PrepareTeams(config PlayOffOptimizerConfig, teams []*Team, groupStageTeamStats []*TeamStats) []*PlayOffMatch {
+func (s *SerpentinePlayOffOptimizer) PrepareTeams(config PlayOffTeamOptimizerConfig, teams []*Team, groupStageTeamStats []*TeamStats) []*PlayOffMatch {
 	ranking := GetTeamsRankingByPerformance(groupStageTeamStats)
 	teamToRankMapping := make(map[*Team]uint32)
 	for index, rank := range ranking {

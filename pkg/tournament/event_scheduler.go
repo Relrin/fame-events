@@ -4,10 +4,8 @@ type EventScheduler struct {
 	Name        string
 	GroupStages []*GroupStage
 
-	// Turn into config?
-	TiebreakResolver *TiebreakResolver
-	PlayOffOptimizer *PlayOffOptimizer
-	// GroupStageOptimizer
+	TiebreakResolver     *TiebreakResolver
+	PlayOffTeamOptimizer *PlayOffTeamOptimizer
 }
 
 func NewEventScheduler() *EventScheduler {
@@ -27,8 +25,8 @@ func (es *EventScheduler) WithTiebreakResolver(tiebreakResolver *TiebreakResolve
 }
 
 // WithPlayOffOptimizer sets a new playoff optimizer that runs after finishing all group stages
-func (es *EventScheduler) WithPlayOffOptimizer(playOffOptimizer *PlayOffOptimizer) *EventScheduler {
-	es.PlayOffOptimizer = playOffOptimizer
+func (es *EventScheduler) WithPlayOffOptimizer(playOffOptimizer *PlayOffTeamOptimizer) *EventScheduler {
+	es.PlayOffTeamOptimizer = playOffOptimizer
 	return es
 }
 
