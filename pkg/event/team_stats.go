@@ -15,3 +15,21 @@ type TeamStats struct {
 	ObjectiveScore uint32
 	SupportScore   uint32
 }
+
+// Update returns latest team stats based on the given players information
+func (teamStats *TeamStats) Update(playerStats []*PlayerStats) *TeamStats {
+	if playerStats == nil {
+		return teamStats
+	}
+
+	for _, stats := range playerStats {
+		teamStats.Kills += stats.Kills
+		teamStats.Deaths += stats.Deaths
+		teamStats.Assists += stats.Assists
+		teamStats.CombatScore += stats.CombatScore
+		teamStats.ObjectiveScore += stats.ObjectiveScore
+		teamStats.SupportScore += stats.SupportScore
+	}
+
+	return teamStats
+}
