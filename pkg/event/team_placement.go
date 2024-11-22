@@ -1,11 +1,12 @@
 package event
 
 type TeamPlacement struct {
-	Name    string
-	Matches uint32
-	Wins    uint32
-	Loses   uint32
-	Points  uint32
+	Name       string
+	BrandIndex uint32
+	Matches    uint32
+	Wins       uint32
+	Loses      uint32
+	Points     uint32
 }
 
 type AggregatedTeamData struct {
