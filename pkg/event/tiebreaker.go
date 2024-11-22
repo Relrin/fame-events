@@ -2,7 +2,7 @@ package event
 
 type TiebreakResolver interface {
 	IsDeciderMatchRequired(gs *GroupStage) bool
-	DetermineRanking(gs *GroupStage) []uint32
+	DetermineRanking(gs *GroupStage) []string
 }
 
 // TeamStatsTiebreakResolver is a tiebreak resolver that decides to advance
@@ -22,6 +22,6 @@ func (t *TeamStatsTiebreakResolver) IsDeciderMatchRequired(gs *GroupStage) bool 
 
 // DetermineRanking returns a final list of teams indices sorted by the given rules. The
 // returns list is expected to be used as the main decider which teams should go further.
-func (t *TeamStatsTiebreakResolver) DetermineRanking(gs *GroupStage) []uint32 {
+func (t *TeamStatsTiebreakResolver) DetermineRanking(gs *GroupStage) []string {
 	return GetTeamsRankingByPerformance(gs.TeamStats)
 }

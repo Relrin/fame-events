@@ -10,6 +10,6 @@ type TeamPlacement struct {
 }
 
 type AggregatedTeamData struct {
-	TeamIndex uint32
+	TeamId    string
 	TeamStats *TeamStats
 }

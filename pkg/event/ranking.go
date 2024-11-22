@@ -2,22 +2,21 @@ package event
 
 import "sort"
 
-// GetTeamsRankingByPerformance returns a sorted list of indices for teams based on the following rules:
+// GetTeamsRankingByPerformance returns a sorted list of teams ids based on the following rules:
 // - Order by points (as normally we do)
 // - Order by win/loss matches for teams. If they are equal compare by the next rule.
 // - Order by combat/support/objective scores. If they are equal compare by the next rule.
 // - Order by KDA between teams
-func GetTeamsRankingByPerformance(stats []*TeamStats) []uint32 {
+func GetTeamsRankingByPerformance(stats map[string]*TeamStats) []string {
 	aggregatedTeamData := make([]*AggregatedTeamData, 0)
-
-	for index, teamStats := range stats {
+	for teamId, teamStats := range stats {
 		aggregatedTeamData = append(aggregatedTeamData, &AggregatedTeamData{
-			TeamIndex: uint32(index),
+			TeamId:    teamId,
 			TeamStats: teamStats,
 		})
 	}
 
-	sort.Slice(aggregatedTeamData, func(i, j int) bool {
+	sort.SliceStable(aggregatedTeamData, func(i, j int) bool {
 		return aggregatedTeamData[i].TeamStats.Points > aggregatedTeamData[j].TeamStats.Points &&
 			// Order by win/loss. Those who won more matches have an advantage
 			aggregatedTeamData[i].TeamStats.WonMatches > aggregatedTeamData[j].TeamStats.WonMatches &&
@@ -36,10 +35,10 @@ func GetTeamsRankingByPerformance(stats []*TeamStats) []uint32 {
 			aggregatedTeamData[i].TeamStats.Deaths < aggregatedTeamData[j].TeamStats.Deaths
 	})
 
-	ranking := make([]uint32, 0)
-	for _, teamEntry := range aggregatedTeamData {
-		ranking = append(ranking, teamEntry.TeamIndex)
+	teamsRanking := make([]string, 0)
+	for _, entry := range aggregatedTeamData {
+		teamsRanking = append(teamsRanking, entry.TeamId)
 	}
 
-	return ranking
+	return teamsRanking
 }

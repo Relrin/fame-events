@@ -3,7 +3,7 @@ package event
 import "sort"
 
 type PlayOffTeamOptimizer interface {
-	PrepareTeams(config PlayOffTeamOptimizerConfig, teams []*Team, groupStageStats []*TeamStats) []*PlayOffMatch
+	PrepareTeams(config PlayOffTeamOptimizerConfig, teams []*Team, groupStageTeamStats []*TeamStats) []*PlayOffMatch
 }
 
 type PlayOffTeamOptimizerConfig struct {
@@ -52,21 +52,25 @@ func (n *NoopPlayOffOptimizer) PrepareTeams(config PlayOffTeamOptimizerConfig, t
 type SerpentinePlayOffOptimizer struct{}
 
 // PrepareTeams organizes teams for the play off based on the serpentine system (i.e. snake seeding)
-func (s *SerpentinePlayOffOptimizer) PrepareTeams(config PlayOffTeamOptimizerConfig, teams []*Team, groupStageTeamStats []*TeamStats) []*PlayOffMatch {
-	ranking := GetTeamsRankingByPerformance(groupStageTeamStats)
-	teamToRankMapping := make(map[*Team]uint32)
-	for index, rank := range ranking {
-		team := teams[index]
-		teamToRankMapping[team] = rank
+func (s *SerpentinePlayOffOptimizer) PrepareTeams(config PlayOffTeamOptimizerConfig, teams map[string]*Team, groupStageTeamStats map[string]*TeamStats) []*PlayOffMatch {
+	teamsRanking := GetTeamsRankingByPerformance(groupStageTeamStats)
+	teamToRankMapping := make(map[*Team]int)
+	for index, teamId := range teamsRanking {
+		team := teams[teamId]
+		teamToRankMapping[team] = index
 	}
 
-	// Pre-pass: align the entries with the actual ranking
-	sortedTeams := append([]*Team{}, teams...)
-	sort.Slice(sortedTeams, func(i, j int) bool {
-		teamA := teams[i]
+	// Pre-pass: sort the teams based on the given ranking
+	allTeams := make([]*Team, 0)
+	for _, team := range teams {
+		allTeams = append(allTeams, team)
+	}
+
+	sort.Slice(allTeams, func(i, j int) bool {
+		teamA := allTeams[i]
 		rankTeamA := teamToRankMapping[teamA]
 
-		teamB := teams[j]
+		teamB := allTeams[j]
 		rankTeamB := teamToRankMapping[teamB]
 
 		return rankTeamA < rankTeamB
@@ -88,7 +92,7 @@ func (s *SerpentinePlayOffOptimizer) PrepareTeams(config PlayOffTeamOptimizerCon
 			// Left to right
 			for j := 0; j < config.TotalMatches; j++ {
 				if teamIndex < len(teams) {
-					matches[j].Teams = append(matches[j].Teams, sortedTeams[teamIndex])
+					matches[j].Teams = append(matches[j].Teams, allTeams[teamIndex])
 					teamIndex += 1
 				}
 			}
@@ -96,7 +100,7 @@ func (s *SerpentinePlayOffOptimizer) PrepareTeams(config PlayOffTeamOptimizerCon
 			// Right to left
 			for j := config.TotalMatches - 1; j >= 0; j-- {
 				if teamIndex < len(teams) {
-					matches[j].Teams = append(matches[j].Teams, sortedTeams[teamIndex])
+					matches[j].Teams = append(matches[j].Teams, allTeams[teamIndex])
 					teamIndex += 1
 				}
 			}
