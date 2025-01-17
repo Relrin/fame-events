@@ -3,7 +3,7 @@ syntax = "proto3";
 package event;
 
 service Event {
-  rpc ScheduleEvent(ScheduleEventRequest) returns (ScheduleEventResponse) {}
+  rpc ScheduleEvent(ScheduleEventRequest) returns (ScheduleEventResponse);
 }
 
 message ScheduleEventRequest {
@@ -24,4 +24,5 @@ message Team {
 
 message PlayerInfo {
   string player_id = 1;
+  string party_id = 2;
 }
